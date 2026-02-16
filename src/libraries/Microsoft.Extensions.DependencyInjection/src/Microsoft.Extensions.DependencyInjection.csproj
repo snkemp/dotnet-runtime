@@ -14,28 +14,23 @@
   <PropertyGroup>
     <ILEmitBackend Condition="'$(TargetFramework)' != 'netstandard2.0'">true</ILEmitBackend>
     <DefineConstants Condition="'$(ILEmitBackend)' == 'true'">$(DefineConstants);IL_EMIT</DefineConstants>
-    <DefineConstants Condition="($([MSBuild]::GetTargetFrameworkIdentifier('$(TargetFramework)')) == '.NETFramework' or $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))) and
-                               '$(ILEmitBackendSaveAssemblies)' == 'true'">$(DefineConstants);SAVE_ASSEMBLIES</DefineConstants>
+    <DefineConstants Condition="($([MSBuild]::GetTargetFrameworkIdentifier('$(TargetFramework)')) == '.NETFramework' or $([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))) and&#xD;&#xA;                               '$(ILEmitBackendSaveAssemblies)' == 'true'">$(DefineConstants);SAVE_ASSEMBLIES</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="**\*.cs" />
     <Compile Remove="ServiceLookup\ILEmit\**\*.cs" />
     <Compile Condition="'$(ILEmitBackend)' == 'true'" Include="ServiceLookup\ILEmit\*.cs" />
-    <Compile Include="$(CommonPath)Extensions\ParameterDefaultValue\ParameterDefaultValue.cs"
-             Link="Common\src\Extensions\ParameterDefaultValue\ParameterDefaultValue.cs" />
-    <Compile Include="$(CommonPath)Extensions\TypeNameHelper\TypeNameHelper.cs"
-             Link="Common\src\Extensions\TypeNameHelper\TypeNameHelper.cs" />
+    <Compile Include="$(CommonPath)Extensions\ParameterDefaultValue\ParameterDefaultValue.cs" Link="Common\src\Extensions\ParameterDefaultValue\ParameterDefaultValue.cs" />
+    <Compile Include="$(CommonPath)Extensions\TypeNameHelper\TypeNameHelper.cs" Link="Common\src\Extensions\TypeNameHelper\TypeNameHelper.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'">
-    <Compile Include="$(CommonPath)Extensions\ParameterDefaultValue\ParameterDefaultValue.netcoreapp.cs"
-             Link="Common\src\Extensions\ParameterDefaultValue\ParameterDefaultValue.netcoreapp.cs" />
+    <Compile Include="$(CommonPath)Extensions\ParameterDefaultValue\ParameterDefaultValue.netcoreapp.cs" Link="Common\src\Extensions\ParameterDefaultValue\ParameterDefaultValue.netcoreapp.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETCoreApp'">
-    <Compile Include="$(CommonPath)Extensions\ParameterDefaultValue\ParameterDefaultValue.netstandard.cs"
-             Link="Common\src\Extensions\ParameterDefaultValue\ParameterDefaultValue.netstandard.cs" />
+    <Compile Include="$(CommonPath)Extensions\ParameterDefaultValue\ParameterDefaultValue.netstandard.cs" Link="Common\src\Extensions\ParameterDefaultValue\ParameterDefaultValue.netstandard.cs" />
 
     <Compile Include="$(CoreLibSharedDir)System\Diagnostics\CodeAnalysis\DynamicallyAccessedMembersAttribute.cs" />
     <Compile Include="$(CoreLibSharedDir)System\Diagnostics\CodeAnalysis\DynamicallyAccessedMemberTypes.cs" />
@@ -54,6 +49,16 @@
   <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netstandard2.1'))">
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="$(SystemThreadingTasksExtensionsVersion)" />
     <ProjectReference Include="$(LibrariesProjectRoot)Microsoft.Bcl.AsyncInterfaces\src\Microsoft.Bcl.AsyncInterfaces.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="C:\Users\Spencer\source\repos\runtime\src\libraries\Microsoft.Extensions.DependencyInjection\src\Resources\Strings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="libraries\Microsoft.Extensions.DependencyInjection.Abstractions\src\" />
   </ItemGroup>
 
 </Project>
