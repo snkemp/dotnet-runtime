@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
@@ -147,6 +148,26 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Gets the <see cref="Type"/> of the service.
         /// </summary>
         public Type ServiceType { get; }
+
+        /// <summary>
+        /// Gets the dependency replacements for this service descriptor.
+        /// When this service is being constructed, any constructor parameter whose service type
+        /// matches a key in this dictionary will be resolved using the replacement implementation type instead.
+        /// </summary>
+        public Dictionary<Type, Type>? DependencyReplacements { get; private set; }
+
+        /// <summary>
+        /// Adds a dependency replacement for this service descriptor.
+        /// When this service is being constructed, a constructor parameter of type <paramref name="dependencyType"/>
+        /// will be resolved using <paramref name="replacementImplementationType"/> instead of the default registration.
+        /// </summary>
+        /// <param name="dependencyType">The dependency type to replace.</param>
+        /// <param name="replacementImplementationType">The implementation type to use as the replacement.</param>
+        public void AddDependencyReplacement(Type dependencyType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type replacementImplementationType)
+        {
+            DependencyReplacements ??= new Dictionary<Type, Type>();
+            DependencyReplacements[dependencyType] = replacementImplementationType;
+        }
 
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
         private Type? _implementationType;

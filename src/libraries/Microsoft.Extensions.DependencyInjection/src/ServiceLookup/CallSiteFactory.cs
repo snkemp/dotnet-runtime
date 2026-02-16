@@ -393,7 +393,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
                 }
                 else if (descriptor.HasImplementationType())
                 {
-                    callSite = CreateConstructorCallSite(lifetime, serviceIdentifier, descriptor.GetImplementationType()!, callSiteChain);
+                    callSite = CreateConstructorCallSite(lifetime, serviceIdentifier, descriptor.GetImplementationType()!, callSiteChain, descriptor.DependencyReplacements);
                 }
                 else
                 {
@@ -449,7 +449,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
                     return null;
                 }
 
-                return _callSiteCache[callSiteKey] = CreateConstructorCallSite(lifetime, serviceIdentifier, closedType, callSiteChain);
+                return _callSiteCache[callSiteKey] = CreateConstructorCallSite(lifetime, serviceIdentifier, closedType, callSiteChain, descriptor.DependencyReplacements);
             }
 
             return null;
@@ -459,7 +459,8 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
             ResultCache lifetime,
             ServiceIdentifier serviceIdentifier,
             [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType,
-            CallSiteChain callSiteChain)
+            CallSiteChain callSiteChain,
+            Dictionary<Type, Type>? dependencyReplacements = null)
         {
             try
             {
@@ -486,7 +487,8 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
                         implementationType,
                         callSiteChain,
                         parameters,
-                        throwIfCallSiteNotFound: true)!;
+                        throwIfCallSiteNotFound: true,
+                        dependencyReplacements: dependencyReplacements)!;
 
                     return new ConstructorCallSite(lifetime, serviceIdentifier.ServiceType, constructor, parameterCallSites);
                 }
@@ -505,7 +507,8 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
                         implementationType,
                         callSiteChain,
                         parameters,
-                        throwIfCallSiteNotFound: false);
+                        throwIfCallSiteNotFound: false,
+                        dependencyReplacements: dependencyReplacements);
 
                     if (currentParameterCallSites != null)
                     {
@@ -567,7 +570,8 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
             Type implementationType,
             CallSiteChain callSiteChain,
             ParameterInfo[] parameters,
-            bool throwIfCallSiteNotFound)
+            bool throwIfCallSiteNotFound,
+            Dictionary<Type, Type>? dependencyReplacements = null)
         {
             var parameterCallSites = new ServiceCallSite[parameters.Length];
 
@@ -595,6 +599,15 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
                         isKeyedParameter = true;
                         break;
                     }
+                }
+
+                // Check if a dependency replacement exists for this parameter type
+                if (callSite == null && !isKeyedParameter &&
+                    dependencyReplacements != null &&
+                    dependencyReplacements.TryGetValue(parameterType, out Type? replacementType))
+                {
+                    var replacementLifetime = new ResultCache(ServiceLifetime.Transient, serviceIdentifier, DefaultSlot);
+                    callSite = CreateConstructorCallSite(replacementLifetime, ServiceIdentifier.FromServiceType(parameterType), replacementType, callSiteChain);
                 }
 
                 if (!isKeyedParameter)
