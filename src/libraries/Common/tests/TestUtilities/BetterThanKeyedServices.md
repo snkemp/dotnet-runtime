@@ -31,6 +31,8 @@ Keyed services are often used to resolve dependencies based on a key or identifi
 but they can lead to code that is hard to maintain and understand.
 This specification proposes a more type-safe and maintainable approach.
 
+Note: Some of the following may be obvious to some readers, but I want to be as explicit as possible in outlining the problems with keyed services and the proposed solution.
+
 ## The Current Behavior of the .NET Dependency Injection Framework
 
 The .NET Dependency Injection framework (DI) allows for the registration and resolution of services based on types.
